@@ -59,10 +59,10 @@ block extra_scripts
       directionsDisplay.setMap(map);
 
       hyperlapse = new Hyperlapse(document.getElementById('hyperlapse'), {
-        lookat: new google.maps.LatLng(initialLoc.coords.latitude, initialLoc.coords.longitude),
         zoom: 1,
-        use_lookat: true,
-        elevation: 50
+        elevation: 50,
+        width: 593,
+        height: 867,
       });
 
       hyperlapse.onError = function(e) {
