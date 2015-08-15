@@ -1,11 +1,22 @@
 doctype html
 html
   head
-    title= title
+    title Ride With Me
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
     block extra_styles
   body
+    .navbar.navbar-default
+        .container
+          .navbar-header
+            button.navbar-toggle.collapsed(type="button", data-toggle="collapse", data-target="#navbar-collapse")
+            a.navbar-brand(href="/") Ride With Me
+          .collapse.navbar-collapse#navbar-collapse
+            ul.nav.navbar-nav.navbar-left
+                li: a(href="/") Hyperlapse
+                li: a(href="/list") View
+                li: a(href="/create") Create
+            block additional_nav_items
     block content
 
     script(src='https://code.jquery.com/jquery-2.1.4.min.js')

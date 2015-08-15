@@ -1,15 +1,5 @@
 extends layout
 
-block extra_nav_items
-  form.navbar-form.navbar-right
-    .form-group
-      label(for="from") From
-      input.form-control(type="text", name="from", id="from")
-    .form-group
-      label(for="to") To
-      input.form-control(type="text", name="to", id="to")
-    button.btn.btn-primary(type="submit", id="submitRoute") Submit
-
 block content
   #map
 
