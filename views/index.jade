@@ -15,7 +15,11 @@ block content
     h1 Map
     #hypermap
     h1 Preview
+    button(onClick="generateGIF()") Generate GIF
+    progress#progress(value="0", max="1"): br
     #hyperlapse
+    hr
+    #gif
 
 block extra_scripts
   script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
@@ -61,6 +65,7 @@ block extra_scripts
       hyperlapse = new Hyperlapse(document.getElementById('hyperlapse'), {
         zoom: 1,
         elevation: 50,
+        max_points: 200,
         width: 593,
         height: 867,
       });
