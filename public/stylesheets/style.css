@@ -1,0 +1,15 @@
+html, body, #map {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+	margin-bottom: 0 !important;
+}
+
+.navbar-form input, button {
+  margin: 0 5px;
+}
+
+

@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  .navbar.navbar-default
+    .container
+      .navbar-header
+        button.navbar-toggle.collapsed(type="button", data-toggle="collapse", data-target="#navbar-collapse")
+        a.navbar-brand(href="/") Ride With Me
+      .collapse.navbar-collapse#navbar-collapse
+        form.navbar-form.navbar-right
+          .form-group
+            label(for="from") From
+            input.form-control(type="text", name="from", id="from")
+          .form-group
+            label(for="to") To
+            input.form-control(type="text", name="to", id="to")
+          button.btn.btn-primary(type="submit", id="submitRoute") Submit
+  #map
+
+block extra_scripts
+  script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
+  script.
+    function getLoc(next) {
+      var geoSuccess = function(position) {
+        initialLoc = position;
+        next();
+      }
+
+      // initial loc
+      navigator.geolocation.getCurrentPosition(geoSuccess);
+    }
+    
+    function initialize() {
+      var from_autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('from'), 
+        { types: ['(cities)'], }
+      );
+
+      var to_autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('to'), 
+        { types: ['(cities)'], }
+      );
+
+      // map
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: new google.maps.LatLng(initialLoc.coords.latitude, initialLoc.coords.longitude),
+      });
+    }
+
+    google.maps.event.addDomListener(window, 'load', getLoc(initialize));
