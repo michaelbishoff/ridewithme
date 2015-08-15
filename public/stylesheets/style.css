@@ -1,7 +1,7 @@
 html, body, #map {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 .navbar {
@@ -12,4 +12,11 @@ html, body, #map {
   margin: 0 5px;
 }
 
+#hypermap, #hyperlapse {
+	width: 100%;
+	min-height: 400px;
+}
 
+#hypercontainer {
+	padding-bottom: 50px;
+}

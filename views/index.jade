@@ -1,6 +1,6 @@
 extends layout
 
-block extra_nav_items
+block additional_nav_items
   form.navbar-form.navbar-right
     .form-group
       label(for="from") From
@@ -8,14 +8,25 @@ block extra_nav_items
     .form-group
       label(for="to") To
       input.form-control(type="text", name="to", id="to")
-    button.btn.btn-primary(type="submit", id="submitRoute") Submit
+    button.btn.btn-primary#submitRoute(type="submit") Submit
 
 block content
-  #map
+  .container#hypercontainer
+    h1 Map
+    #hypermap
+    h1 Preview
+    #hyperlapse
 
 block extra_scripts
   script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
+  script(src="/javascripts/GSVPano.min.js")
+  script(src="/javascripts/three.min.js")
+  script(src="/javascripts/hyperlapse.min.js")
   script.
+    var hyperlapse;
+    var directionsDisplay;
+    var directionsService = new google.maps.DirectionsService();
+
     function getLoc(next) {
       var geoSuccess = function(position) {
         initialLoc = position;
@@ -38,10 +49,56 @@ block extra_scripts
       );
 
       // map
-      map = new google.maps.Map(document.getElementById('map'), {
+      map = new google.maps.Map(document.getElementById('hypermap'), {
         zoom: 10,
         center: new google.maps.LatLng(initialLoc.coords.latitude, initialLoc.coords.longitude),
       });
+
+      // directions
+      directionsDisplay = new google.maps.DirectionsRenderer();
+      directionsDisplay.setMap(map);
+
+      hyperlapse = new Hyperlapse(document.getElementById('hyperlapse'), {
+        lookat: new google.maps.LatLng(initialLoc.coords.latitude, initialLoc.coords.longitude),
+        zoom: 1,
+        use_lookat: true,
+        elevation: 50
+      });
+
+      hyperlapse.onError = function(e) {
+        console.log(e);
+      };
+
+      hyperlapse.onRouteComplete = function(e) {
+        hyperlapse.load();
+      };
+
+      hyperlapse.onLoadComplete = function(e) {
+        hyperlapse.play();
+      };
     }
 
     google.maps.event.addDomListener(window, 'load', getLoc(initialize));
+
+    function calcRoute() {
+      var start = document.getElementById('from').value;
+      var end = document.getElementById('to').value;
+
+      var request = {
+        origin: start,
+        destination: end,
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      
+      directionsService.route(request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          directionsDisplay.setDirections(response); 
+          hyperlapse.generate( {route:response} );    
+        }
+      });
+    }
+
+    $('#submitRoute').click(function(event) {
+      event.preventDefault();
+      calcRoute();
+    });
