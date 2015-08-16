@@ -23,10 +23,10 @@ block content
             input.form-control(type="text", name="title")
           .form-group
             label(for="to") Start Location
-            input.form-control(type="text", id="to" name="to", readonly)
+            input.form-control(type="text", id="to", name="to", readonly)
           .form-group
             label(for="from") End Location
-            input.form-control(type="text", id="from" name="from", readonly)
+            input.form-control(type="text", id="from", name="from", readonly)
           .form-group
             label(for="distance") Distance (km)
             input.form-control(type="text", id="distance", name="distance", readonly)
@@ -34,14 +34,13 @@ block content
             label(for="from") Tags
             input.form-control(type="text", name="othersAllowed" placeholder="curvy, down hill, etc.")
           .form-group
-            label(for="from") Allow others to join you
-            input.form-control(type="text", name="othersAllowed")
+            label(for="from") Difficulty Level
+            input.form-control(type="select", name="difficulty")
           hr
-          button#saveButton.btn.btn-default(type="submit") Submit
+          button#submit.btn.btn-default(type="submit") Submit
   #preview(style="display:none;")   
 
 block extra_scripts
-  script(src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap")
   script(src="http://www.parsecdn.com/js/parse-1.5.0.min.js")
   script(src="/javascripts/key.js")
   script.
@@ -82,7 +81,7 @@ block extra_scripts
         if (startLocation == null) {
           startLocation = new google.maps.LatLng(lat, lng);
           console.log("Start: " +lat + ", " + lng);
-          
+
           geocoder.geocode({'location': startLocation}, function(results, status) {
             if (status === google.maps.GeocoderStatus.OK) {
               if (results[1]) {
@@ -141,31 +140,8 @@ block extra_scripts
         }
       });
         
-      document.getElementById("saveButton").addEventListener("click", function() {
+      document.getElementById("submit").addEventListener("click", function() {
         saveRide(directionsDisplay, waypoints);
-      });
-        
-      document.getElementById("loadButton").addEventListener("click", function() {
-        var ride;// = JSON.parse(document.getElementById("saved").innerHTML);
-        
-        var query = new Parse.Query(Ride);
-        query.limit(1);
-        query.descending("createdAt");
-        query.find({
-          success: function(rides) {
-              ride = JSON.parse(rides[0].get("ride"));
-              
-              directionsDisplay.setMap(null);
-              directionsDisplay = new google.maps.DirectionsRenderer({
-                  draggable: true,
-                  map: map,
-              });
-              loadRide(directionsService, directionsDisplay, ride);
-          },
-          error: function(object, error) {
-              alert("Faild to load ride");
-          }
-        });
       });
     }
 
@@ -201,7 +177,7 @@ block extra_scripts
       }
       markers = [];
     }
-            
+    
     function saveRide(directionsDisplay, waypoints) {
       var legs = directionsDisplay.directions.routes[0].legs;
       var data = {};
@@ -232,11 +208,12 @@ block extra_scripts
       var ride = new Ride();
       ride.save({"ride": str}, {
         success: function(object) {
-            alert("saved");
+            console.log("saved");
         },
         error: function(model, error) {
-            alert("didnt' save");
+            console.log("didnt' save");
         }
       });
     }
-     
+
+  script(src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap")
