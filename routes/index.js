@@ -7,7 +7,7 @@ Parse.initialize("nQg6GAgEFvN69KWpPn4HDx27KIu7e3wwIF2ziJqr", "rdEIZgA6De7NUEVyV4
 var Ride = Parse.Object.extend('RidePath');
 
 /* GET home page. */
-router.get('/home', function(req, res, next) {
+router.get('/', function(req, res, next) {
     var query = new Parse.Query(Ride);
     query.descending('createdAt');
     query.find().then(function(results) {
@@ -17,7 +17,7 @@ router.get('/home', function(req, res, next) {
 });
 
 
-router.get('/', function(req, res, next) {
+router.get('/test', function(req, res, next) {
   res.render('index');
 });
 
