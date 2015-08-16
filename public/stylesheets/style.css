@@ -2,7 +2,7 @@ html, body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-    background-color: #303030 !important;
+  background-color: #303030 !important;
 }
 
 p {
@@ -121,4 +121,8 @@ p {
 .buffer > *:nth-child(3) {
   background: #fff;
   -webkit-animation: buffer2 1s infinite;
+}
+
+.ride-labels > * {
+  margin-right: 3px;
 }

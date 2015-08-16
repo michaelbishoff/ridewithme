@@ -9,7 +9,7 @@ block content
             .col-xs-12
               .ride-listing-header
                 h2 #{ride.get("rideTitle")}
-                p
+                p.ride-labels
                   #[span.label.label-danger #{ride.get("difficulty")}]
                   #[span.label.label-default #{ride.get("distance")} km] 
                   #[span.label.label-warning #{ride.get("tags")}]
