@@ -1,0 +1,1 @@
+Parse.initialize("nQg6GAgEFvN69KWpPn4HDx27KIu7e3wwIF2ziJqr", "rdEIZgA6De7NUEVyV4oGfKvWLTwSxKOds61f0WEl");
