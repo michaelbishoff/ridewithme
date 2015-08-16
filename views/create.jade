@@ -23,17 +23,16 @@ block content
             input.form-control(type="text", name="title")
           .form-group
             label(for="to") Start Location
-            input.form-control(type="text", name="to", readonly)       
+            input.form-control(type="text", id="to" name="to", readonly)
           .form-group
             label(for="from") End Location
-            input.form-control(type="text", name="from", readonly)
+            input.form-control(type="text", id="from" name="from", readonly)
           .form-group
             label(for="distance") Distance (km)
-            input.form-control(type="text", name="distance", readonly)
+            input.form-control(type="text", id="distance", name="distance", readonly)
           .form-group
             label(for="from") Tags
-            input.form-control(type="text", name="othersAllowed")
-            p.help-block Describe your ride with simple tag descriptions i.e. curvy
+            input.form-control(type="text", name="othersAllowed" placeholder="curvy, down hill, etc.")
           .form-group
             label(for="from") Allow others to join you
             input.form-control(type="text", name="othersAllowed")
@@ -94,6 +93,8 @@ block extra_scripts
                 
                 infowindow.setContent(results[1].formatted_address);
                 infowindow.open(map, markers[0]);
+                document.getElementById("from").value = results[1].formatted_address;
+                  
               } else {
                 window.alert('No results found');
               }
@@ -107,11 +108,36 @@ block extra_scripts
           console.log("End: " + lat + ", " + lng);
           
           displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
+          
+          geocoder.geocode({'location': endLocation}, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+              if (results[1]) {
+                  document.getElementById("to").value = results[1].formatted_address;
+              } else {
+                window.alert('No results found');
+              }
+            } else {
+              window.alert('Geocoder failed due to: ' + status);
+            }
+          });
+          
         } else {
           waypoints.push({location: endLocation});
           endLocation = new google.maps.LatLng(lat, lng);
           
           displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
+            
+          geocoder.geocode({'location': endLocation}, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+              if (results[1]) {
+                  document.getElementById("to").value = results[1].formatted_address;
+              } else {
+                window.alert('No results found');
+              }
+            } else {
+              window.alert('Geocoder failed due to: ' + status);
+            }
+          });
         }
       });
         
@@ -166,9 +192,9 @@ block extra_scripts
         total += myroute.legs[i].distance.value;
       }
       total = total / 1000;
-      document.getElementById('total').innerHTML = total + ' km';
+      document.getElementById('distance').value = total;
     }
-            
+    
     function deleteMarkers() {
       for (var i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
