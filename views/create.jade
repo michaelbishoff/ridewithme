@@ -17,10 +17,9 @@ block content
     .container.container-narrow
       h1(style="margin-bottom:30px;") Create Route
       .thumbnail.padding-thumbnail
-        form.form.big-form
           .form-group
             label(for="title") Name Your Route
-            input.form-control(type="text", name="title")
+            input.form-control(type="text", id="title", name="title")
           .form-group
             label(for="to") Start Location
             input.form-control(type="text", id="to", name="to", readonly)
@@ -29,13 +28,21 @@ block content
             input.form-control(type="text", id="from", name="from", readonly)
           .form-group
             label(for="distance") Distance (km)
-            input.form-control(type="text", id="distance", name="distance", readonly)
+            input.form-control(type="number", id="distance", name="distance", readonly)
           .form-group
-            label(for="from") Tags
-            input.form-control(type="text", name="othersAllowed" placeholder="curvy, down hill, etc.")
+            label(for="tags") Tags
+            input.form-control(type="text", id="tags", name="tags" placeholder="curvy, down hill, etc.")
           .form-group
-            label(for="from") Difficulty Level
-            input.form-control(type="select", name="difficulty")
+            label(for="difficulty") Difficulty Level
+            br
+            button#hard.btn.btn-success Easy
+            button#hard.btn.btn-warning Intermediate
+            button#hard.btn.btn-danger Hard
+            div.tabbable.tabs-below
+              ul.nav.nav-pills
+                li.active(role="presentation") Easy
+                li Intermediate
+                li Advanced
           hr
           button#submit.btn.btn-default(type="submit") Submit
   #preview(style="display:none;")   
@@ -213,15 +220,24 @@ block extra_scripts
       }
 
       data.waypoints = totalWP;
-      var str = JSON.stringify(data)
-        
+      var rideString = JSON.stringify(data)
       var ride = new Ride();
-      ride.save({"ride": str}, {
+      
+      ride.set("rideTitle", document.getElementById("title").value);
+      ride.set("from", document.getElementById("from").value);
+      ride.set("to", document.getElementById("to").value);
+      ride.set("distance",Number(document.getElementById("distance").value));
+      ride.set("tags", document.getElementById("tags").value);
+      ride.set("difficulty", "Intermediate");
+      ride.set("ride", rideString);
+      
+      ride.save(null, {
         success: function(object) {
+            alert("saved");
             console.log("saved");
         },
         error: function(model, error) {
-            console.log("didnt' save");
+            alert("didnt' save");
         }
       });
     }

@@ -18,5 +18,9 @@ router.get('/create', function(req, res, next) {
   res.render('create');
 });
 
+router.get('/ride', function(req, res, next) {
+   res.render('ride', {rideId : "3SxhEeyL0n"});
+});
+
 
 module.exports = router;
