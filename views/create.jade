@@ -48,6 +48,8 @@ block content
   #preview(style="display:none;")   
 
 block extra_scripts
+  cript(src="/javascripts/faker.min.js")
+
   script(src="http://www.parsecdn.com/js/parse-1.5.0.min.js")
   script(src="/javascripts/key.js")
   script.
@@ -265,6 +267,15 @@ block extra_scripts
       ride.set("distance",Number(document.getElementById("distance").value));
       ride.set("tags", document.getElementById("tags").value);
       ride.set("difficulty", document.getElementById("difficulty").value);
+
+      riders = [];
+      for (var i = 0; i < (Math.floor(Math.random() * 6) + 1); i++) {
+        riders.push(faker.image.avatar);
+      }
+
+      ride.set("riders", riders);
+      ride.set("rideDate", faker.date.recent());
+
       ride.set("ride", rideString);
       
       ride.save(null, {
