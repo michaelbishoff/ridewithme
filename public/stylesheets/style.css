@@ -5,6 +5,10 @@ html, body {
   background-color: #303030 !important;
 }
 
+#createForm label, #createForm input {
+  font-size: 1.4em;
+}
+
 p {
   font-size: 1.2em;
 }
@@ -60,8 +64,10 @@ p {
 	padding-bottom: 50px;
 }
 
-.container-narrow {
-  max-width: 650px;
+@media (min-width: 768px) {
+  .container-narrow {
+    max-width: 650px;
+  }
 }
 
 #createForm {

@@ -10,6 +10,9 @@ block extra_styles
     #map {
       height: 90%;
     }
+    .difficulty-buttons > * {
+      margin-right: 5px;
+    }
 
 block content
   #map
@@ -35,22 +38,55 @@ block content
           .form-group
             label(for="difficulty") Difficulty Level
             br
-            button#hard.btn.btn-success Easy
-            button#hard.btn.btn-warning Intermediate
-            button#hard.btn.btn-danger Hard
-            div.tabbable.tabs-below
-              ul.nav.nav-pills
-                li.active(role="presentation") Easy
-                li Intermediate
-                li Advanced
+            div.difficulty-buttons
+              button#difficulty-easy.btn.btn-lg.btn-default Easy
+              button#difficulty-intermediate.btn.btn-lg.btn-default Intermediate
+              button#difficulty-hard.btn.btn-lg.btn-default Hard
+            input(type="hidden", id="difficulty", name="difficulty")
           hr
-          button#submit.btn.btn-default(type="submit") Submit
+          button#submit.btn.btn-primary.btn-lg(type="submit") Submit
   #preview(style="display:none;")   
 
 block extra_scripts
   script(src="http://www.parsecdn.com/js/parse-1.5.0.min.js")
   script(src="/javascripts/key.js")
   script.
+    $('#difficulty-easy').click(function() {
+      // reset the others
+      $('#difficulty-intermediate').removeClass('btn-warning');
+      $('#difficulty-intermediate').addClass('btn-default');
+      $('#difficulty-hard').removeClass('btn-danger');
+      $('#difficulty-hard').addClass('btn-default');
+
+      $('#difficulty-easy').removeClass('btn-default');
+      $('#difficulty-easy').addClass('btn-success');
+      $('#difficulty').val('Easy');
+    });
+
+    $('#difficulty-intermediate').click(function() {
+      // reset the others
+      $('#difficulty-easy').removeClass('btn-success');
+      $('#difficulty-easy').addClass('btn-default');
+      $('#difficulty-hard').removeClass('btn-danger');
+      $('#difficulty-hard').addClass('btn-default');
+
+      $('#difficulty-intermediate').removeClass('btn-default');
+      $('#difficulty-intermediate').addClass('btn-warning');
+      $('#difficulty').val('Intermediate');
+    });
+
+    $('#difficulty-hard').click(function() {
+      // reset the others
+      $('#difficulty-easy').removeClass('btn-success');
+      $('#difficulty-easy').addClass('btn-default');
+      $('#difficulty-intermediate').removeClass('btn-warning');
+      $('#difficulty-intermediate').addClass('btn-default');
+
+      $('#difficulty-hard').removeClass('btn-default');
+      $('#difficulty-hard').addClass('btn-danger');
+      $('#difficulty').val('Hard');
+    });
+
     var Ride = Parse.Object.extend("RidePath");
     var startLocation;
     var endLocation;
@@ -228,15 +264,16 @@ block extra_scripts
       ride.set("to", document.getElementById("to").value);
       ride.set("distance",Number(document.getElementById("distance").value));
       ride.set("tags", document.getElementById("tags").value);
-      ride.set("difficulty", "Intermediate");
+      ride.set("difficulty", document.getElementById("difficulty").value);
       ride.set("ride", rideString);
       
       ride.save(null, {
         success: function(object) {
-            console.log("saved");
+          console.log("saved");
+          window.location.href = "/";
         },
         error: function(model, error) {
-            alert("didnt' save");
+          alert("didnt' save");
         }
       });
     }

@@ -10,9 +10,14 @@ block content
               .ride-listing-header
                 h2 #{ride.get("rideTitle")}
                 p.ride-labels
-                  #[span.label.label-danger #{ride.get("difficulty")}]
+                  if ride.get("difficulty") == 'Easy'
+                    #[span.label.label-success #{ride.get("difficulty")}]
+                  if ride.get("difficulty") == 'Intermediate'
+                    #[span.label.label-warning #{ride.get("difficulty")}]
+                  if ride.get("difficulty") == 'Hard'
+                    #[span.label.label-danger #{ride.get("difficulty")}]
                   #[span.label.label-default #{ride.get("distance")} km] 
-                  #[span.label.label-warning #{ride.get("tags")}]
+                  #[span.label.label-info #{ride.get("tags")}]
               .ride-listing-content
                 hr
                 .location

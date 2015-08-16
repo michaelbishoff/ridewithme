@@ -15,16 +15,16 @@ block content
               .ride-listing-header
                 h2#title Adventure to Highway One
                 p.ride-labels
-                  span#difficulty.label.label-danger
+                  span#difficulty.label
                   span#distance.label.label-default
-                  span#tags.label.label-warning
+                  span#tags.label.label-info
               .ride-listing-content
                 hr
                 .location
                   p#to
                   p#from
                 hr
-                p #[strong Who else is riding?]
+                h2 Who Else Is Riding
                 p
                   img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
                   img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
@@ -72,6 +72,17 @@ block content
                   document.getElementById("distance").innerHTML = distance + " km";
                   document.getElementById("tags").innerHTML = ride.get("tags");
                   document.getElementById("difficulty").innerHTML = ride.get("difficulty");
+                  switch (ride.get("difficulty")) {
+                    case "Easy":
+                      $('#difficulty').addClass('label-success');
+                      break;
+                    case "Intermediate":
+                      $('#difficulty').addClass('label-warning');
+                      break;
+                    case "Hard":
+                      $('#difficulty').addClass('label-danger');
+                      break;
+                  }
               },
               error: function(object, error) {
                 // The object was not retrieved successfully.

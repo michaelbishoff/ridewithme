@@ -54,8 +54,8 @@ block extra_scripts
       var Ride = Parse.Object.extend("RidePath");
       var query = new Parse.Query(Ride);
       var parsedRides = [];
-//      query.limit(5);
-//      query.descending("createdAt");
+      //query.limit(5);
+      //query.descending("createdAt");
       query.find({
         success: function(rides) {
             for (var i = 0; i < rides.length; i++) {
