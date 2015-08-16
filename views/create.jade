@@ -1,48 +1,52 @@
 extends layout
 
+block extra_styles
+  style.
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 90%;
+    }
+
 block content
   #map
-  
-    <div id="saved" hidden></div>
-    <div id="bottomBox" style="position: absolute; background-color: yellow;">
-        <button id="saveButton" type="button">Save Ride</button>
-        <button id="loadButton" type="button">Load Ride</button>
-        <p>Total Distance: <span id="total"></span></p>
-    </div>
+  #createForm
+    .container.container-narrow
+      h1(style="margin-bottom:30px;") Create Route
+      .thumbnail.padding-thumbnail
+        form.form.big-form
+          .form-group
+            label(for="title") Name Your Route
+            input.form-control(type="text", name="title")
+          .form-group
+            label(for="to") Start Location
+            input.form-control(type="text", name="to", readonly)       
+          .form-group
+            label(for="from") End Location
+            input.form-control(type="text", name="from", readonly)
+          .form-group
+            label(for="distance") Distance (km)
+            input.form-control(type="text", name="distance", readonly)
+          .form-group
+            label(for="from") Tags
+            input.form-control(type="text", name="othersAllowed")
+            p.help-block Describe your ride with simple tag descriptions i.e. curvy
+          .form-group
+            label(for="from") Allow others to join you
+            input.form-control(type="text", name="othersAllowed")
+          hr
+          button#saveButton.btn.btn-default(type="submit") Submit
+  #preview(style="display:none;")   
 
 block extra_scripts
-  script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
+  script(src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap")
+  script(src="http://www.parsecdn.com/js/parse-1.5.0.min.js")
+  script(src="/javascripts/key.js")
   script.
-    function getLoc(next) {
-      var geoSuccess = function(position) {
-        initialLoc = position;
-        next();
-      }
-
-      // initial loc
-      navigator.geolocation.getCurrentPosition(geoSuccess);
-    }
-    
-    function initialize() {
-      var from_autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('from'), 
-        { types: ['(cities)'], }
-      );
-
-      var to_autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('to'), 
-        { types: ['(cities)'], }
-      );
-
-      // map
-      map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 10,
-        center: new google.maps.LatLng(initialLoc.coords.latitude, initialLoc.coords.longitude),
-      });
-    }
-    
-    
-    
+    var Ride = Parse.Object.extend("RidePath");
     var startLocation;
     var endLocation;
 
@@ -53,41 +57,41 @@ block extra_scripts
         zoom: 10,
         center: {lat: 37.530, lng:-122.112} // Bae Area
       });
-
+        
       var waypoints = [];
-
+        
       var geocoder = new google.maps.Geocoder;
       var infowindow = new google.maps.InfoWindow;
-
+        
       var bottomBox = document.getElementById('bottomBox');
       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(bottomBox);
-
+      
       var directionsService = new google.maps.DirectionsService;
       var directionsDisplay = new google.maps.DirectionsRenderer({
         draggable: true,
         map: map,
       });
-
+      
       directionsDisplay.addListener('directions_changed', function() {
         computeTotalDistance(directionsDisplay.getDirections());
       });
-
+        
       google.maps.event.addListener(map, "rightclick", function(event) {
         var lat = event.latLng.lat();
         var lng = event.latLng.lng();
-
+        
         if (startLocation == null) {
-            startLocation = new google.maps.LatLng(lat, lng);
-            console.log("Start: " +lat + ", " + lng);
-
-            geocoder.geocode({'location': startLocation}, function(results, status) {
+          startLocation = new google.maps.LatLng(lat, lng);
+          console.log("Start: " +lat + ", " + lng);
+          
+          geocoder.geocode({'location': startLocation}, function(results, status) {
             if (status === google.maps.GeocoderStatus.OK) {
               if (results[1]) {
                 markers.push(new google.maps.Marker({
                   position: startLocation,
                   map: map
                 }));
-
+                
                 infowindow.setContent(results[1].formatted_address);
                 infowindow.open(map, markers[0]);
               } else {
@@ -96,35 +100,46 @@ block extra_scripts
             } else {
               window.alert('Geocoder failed due to: ' + status);
             }
-            });
+          });
         } else if (endLocation == null) {
-            deleteMarkers();
-            endLocation = new google.maps.LatLng(lat, lng);
-            console.log("End: " + lat + ", " + lng);
-
-            displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
-
+          deleteMarkers();
+          endLocation = new google.maps.LatLng(lat, lng);
+          console.log("End: " + lat + ", " + lng);
+          
+          displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
         } else {
-            waypoints.push({location: endLocation});
-            endLocation = new google.maps.LatLng(lat, lng);
-
-            displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
+          waypoints.push({location: endLocation});
+          endLocation = new google.maps.LatLng(lat, lng);
+          
+          displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
         }
       });
-
+        
       document.getElementById("saveButton").addEventListener("click", function() {
-          saveRide(directionsDisplay, waypoints);
+        saveRide(directionsDisplay, waypoints);
       });
-
+        
       document.getElementById("loadButton").addEventListener("click", function() {
-          var os = JSON.parse(document.getElementById("saved").innerHTML);
-          directionsDisplay.setMap(null);
-          directionsDisplay = new google.maps.DirectionsRenderer({
-            draggable: true,
-            map: map,
-        //    panel: document.getElementById('directionsPanel')
-          });
-          loadRide(directionsService, directionsDisplay, os);
+        var ride;// = JSON.parse(document.getElementById("saved").innerHTML);
+        
+        var query = new Parse.Query(Ride);
+        query.limit(1);
+        query.descending("createdAt");
+        query.find({
+          success: function(rides) {
+              ride = JSON.parse(rides[0].get("ride"));
+              
+              directionsDisplay.setMap(null);
+              directionsDisplay = new google.maps.DirectionsRenderer({
+                  draggable: true,
+                  map: map,
+              });
+              loadRide(directionsService, directionsDisplay, ride);
+          },
+          error: function(object, error) {
+              alert("Faild to load ride");
+          }
+        });
       });
     }
 
@@ -153,56 +168,49 @@ block extra_scripts
       total = total / 1000;
       document.getElementById('total').innerHTML = total + ' km';
     }
-
+            
     function deleteMarkers() {
       for (var i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
       }
       markers = [];
     }
-
+            
     function saveRide(directionsDisplay, waypoints) {
       var legs = directionsDisplay.directions.routes[0].legs;
       var data = {};
       data.start = {'lat': legs[0].start_location.lat(), 'lng':legs[0].start_location.lng()}
       data.end = {'lat': legs[legs.length-1].end_location.lat(), 'lng':legs[legs.length-1].end_location.lng()}
-
+      
       var totalWP = [];
       for (var i=0; i < legs.length; i++) {
-
-          // Don't store the origin
-          if (i != 0) {
-          totalWP.push([legs[i].start_location.lat(), legs[i].start_location.lng()]);
-          }
-
-          var legWP = legs[i].via_waypoints;
-          for (var j=0; j < legWP.length; j++) {
-              totalWP.push([legWP[j].lat(), legWP[j].lng()]);
-          }
-
-          // Don't store the destintation
-          if ( i != legs.length - 1) {
-              totalWP.push([legs[i].end_location.lat(), legs[i].end_location.lng()]);
-          }
+        // Don't store the origin
+        if (i != 0) {
+        totalWP.push([legs[i].start_location.lat(), legs[i].start_location.lng()]);
+        }
+        
+        var legWP = legs[i].via_waypoints;
+        for (var j=0; j < legWP.length; j++) {
+            totalWP.push([legWP[j].lat(), legWP[j].lng()]);
+        }
+        
+        // Don't store the destintation
+        if ( i != legs.length - 1) {
+            totalWP.push([legs[i].end_location.lat(), legs[i].end_location.lng()]);
+        }
       }
 
       data.waypoints = totalWP;
       var str = JSON.stringify(data)
-
-      document.getElementById("saved").innerHTML = str;
-    }
-
-    function loadRide(directionsService, directionsDisplay, os) {
-    //    var wp = [];
-        var adjustedWaypoints = [];
-        for(var i=0;i<os.waypoints.length;i++) {
-            adjustedWaypoints[i] = {'location': new google.maps.LatLng(os.waypoints[i][0], os.waypoints[i][1]),'stopover':false }
+        
+      var ride = new Ride();
+      ride.save({"ride": str}, {
+        success: function(object) {
+            alert("saved");
+        },
+        error: function(model, error) {
+            alert("didnt' save");
         }
-
-        displayRoute(os.start, os.end, directionsService, directionsDisplay, adjustedWaypoints);
+      });
     }
-
-    google.maps.event.addDomListener(window, 'load', getLoc(initialize));
-    
-    <script src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=getLoc(initialize)"
-        async defer></script>
+     

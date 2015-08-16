@@ -63,3 +63,15 @@ p {
 .container-narrow {
   max-width: 650px;
 }
+
+#createForm {
+  padding: 20px 0;
+}
+
+#createForm h1 {
+  color: white;
+}
+
+.padding-thumbnail {
+  padding: 20px !important;
+}
