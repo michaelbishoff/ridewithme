@@ -52,6 +52,16 @@ block extra_scripts
 
     var markers = [];
 
+    function getLoc(next, andThen) {
+      var geoSuccess = function(position) {
+        initialLoc = position;
+        next();
+        andThen();
+      }
+      // initial loc
+      navigator.geolocation.getCurrentPosition(geoSuccess);
+    }
+
     function initMap() {
       var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 10,
