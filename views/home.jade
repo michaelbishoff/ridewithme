@@ -2,62 +2,27 @@ extends layout
 
 block content
   .container.container-narrow
-    a.ride-listing-anchor(href="#")
-      .ride-listing.thumbnail
-        .row
-          .col-xs-12
-            .ride-listing-header
-              h2 Adventure to Highway One
-              p
-                #[span.label.label-danger Hard]  
-                #[span.label.label-default 18 miles] 
-                #[span.label.label-warning Curvy] 
-                #[span.label.label-warning High Elevation]
-            .ride-listing-content
-              hr
-              .location
-                p #[strong To:] A locaton
-                p #[strong From:] A location
-              hr
-              p #[strong Who else is riding?]
-              p
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-    a.ride-listing-anchor(href="#")
-      .ride-listing.thumbnail
-        .row
-          .col-xs-12
-            .ride-listing-header
-              h2 Adventure to Highway One
-              p
-                #[span.label.label-danger Hard]  
-                #[span.label.label-default 18 miles] 
-                #[span.label.label-warning Curvy] 
-                #[span.label.label-warning High Elevation]
-            .ride-listing-content
-              hr
-              .location
-                p: #[strong To:] A locaton
-                p: #[strong From:] A location
-              hr
-              p: #[strong Who else is riding?]
-              p
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-                img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", 
-                  style="max-width:50px;margin-right:5px;display:inline-block;")
-
+    each ride in rides
+      a.ride-listing-anchor(href="/ride/#{ride.id}")
+        .ride-listing.thumbnail
+          .row
+            .col-xs-12
+              .ride-listing-header
+                h2 #{ride.get("rideTitle")}
+                p
+                  #[span.label.label-danger #{ride.get("difficulty")}]
+                  #[span.label.label-default #{ride.get("distance")} km] 
+                  #[span.label.label-warning #{ride.get("tags")}]
+              .ride-listing-content
+                hr
+                .location
+                  p #[strong To:] #{ride.get("to")}
+                  p #[strong From:] #{ride.get("from")}
+                hr
+                p #[strong Who else is riding?]
+                p
+                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
+                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
+                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
+                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
+                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
