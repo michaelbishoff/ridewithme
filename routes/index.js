@@ -21,8 +21,8 @@ router.get('/test', function(req, res, next) {
   res.render('index');
 });
 
-router.get('/list', function(req, res, next) {
-  res.render('list');
+router.get('/map', function(req, res, next) {
+  res.render('map');
 });
 
 router.get('/create', function(req, res, next) {
