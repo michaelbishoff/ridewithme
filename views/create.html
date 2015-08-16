@@ -57,12 +57,16 @@
   </head>
   <body>
     <div id="map" style="float:left; width:63%"></div>
-    <div id="distance" style="position: absolute;">
-        <p>Total Distance: <span id="total"></span></p>
-    </div>
     <div style="float:right; width:37%">
         Start:<div id="startLatLng"></div>
         End:<div id="endLatLng"></div>
+        Saved:<div id="saved"></div>
+        Loaded:<div id="loaded"></div>
+    </div>
+    <div id="bottomBox" style="position: absolute; background-color: yellow;">
+        <button id="saveButton" type="button">Save Ride</button>
+        <button id="loadButton" type="button">Load Ride</button>
+        <p>Total Distance: <span id="total"></span></p>
     </div>
     <script>
 var startLocation;
@@ -70,19 +74,32 @@ var endLocation;
 var geoStart;
 var geoEnd;
 
+var markers = [];
 
 function initMap() {
   var map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 4,
-    center: {lat: -24.345, lng: 134.46}  // Australia.
+    zoom: 10,
+    center: {lat: 37.530, lng:-122.112} // Bae Area
   });
+    
+  var waypoints = [];
     
   var geocoder = new google.maps.Geocoder;
   var infowindow = new google.maps.InfoWindow;
     
-  var myControl = document.getElementById('distance');
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(myControl);
+  var bottomBox = document.getElementById('bottomBox');
+  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(bottomBox);
   
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer({
+    draggable: true,
+    map: map,
+  });
+  
+  directionsDisplay.addListener('directions_changed', function() {
+    computeTotalDistance(directionsDisplay.getDirections());
+  });
+    
   google.maps.event.addListener(map, "rightclick", function(event) {
     var lat = event.latLng.lat();
     var lng = event.latLng.lng();
@@ -95,13 +112,13 @@ function initMap() {
         geocoder.geocode({'location': startLocation}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
           if (results[1]) {
-            var marker = new google.maps.Marker({
+            markers.push(new google.maps.Marker({
               position: startLocation,
               map: map
-            });
+            }));
             
             infowindow.setContent(results[1].formatted_address);
-            infowindow.open(map, marker);
+            infowindow.open(map, markers[0]);
           } else {
             window.alert('No results found');
           }
@@ -109,59 +126,42 @@ function initMap() {
           window.alert('Geocoder failed due to: ' + status);
         }
         });
-    } else {
-        
+    } else if (endLocation == null) {
+        deleteMarkers();
         endLocation = new google.maps.LatLng(lat, lng);
         document.getElementById("endLatLng").innerHTML = lat + ", " + lng;
         
-        geocoder.geocode({'location': startLocation}, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results[1]) {
-            var marker = new google.maps.Marker({
-              position: endLocation,
-              map: map
-            });
-            
-            infowindow.setContent(results[1].formatted_address);
-            infowindow.open(map, marker);
-          } else {
-            window.alert('No results found');
-          }
-        } else {
-          window.alert('Geocoder failed due to: ' + status);
-        }
-        });
+        displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
         
-        displayRoute(startLocation, endLocation, directionsService, directionsDisplay);
-    }      
+    } else {
+        waypoints.push({location: endLocation});
+        endLocation = new google.maps.LatLng(lat, lng);
+        
+        displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
+    }
   });
-  
-  var directionsService = new google.maps.DirectionsService;
-  var directionsDisplay = new google.maps.DirectionsRenderer({
-    draggable: true,
-    map: map,
-    panel: document.getElementById('directionsPanel')
+    
+  document.getElementById("saveButton").addEventListener("click", function() {
+      saveRide(directionsDisplay, waypoints);
   });
-
-  directionsDisplay.addListener('directions_changed', function() {
-    computeTotalDistance(directionsDisplay.getDirections());
+    
+  document.getElementById("loadButton").addEventListener("click", function() {
+      var os = JSON.parse(document.getElementById("saved").innerHTML);
+      directionsDisplay.setMap(null);
+      directionsDisplay = new google.maps.DirectionsRenderer({
+        draggable: true,
+        map: map,
+    //    panel: document.getElementById('directionsPanel')
+      });
+      loadRide(directionsService, directionsDisplay, os);
   });
-  
-//  google.maps.event.addListener(map, "rightclick", function(event) {  
-//      // add listener to do this on second click
-//      if (endLocation != null) {
-//          displayRoute(startLocation, endLocation, directionsService,
-//              directionsDisplay);
-//      } 
-//  });
-//  displayRoute(new google.maps.LatLng(-24.926294766395593, 126.03515625), new google.maps.LatLng(-26.745610382199008, 142.822265625), directionsService, directionsDisplay);
 }
 
-function displayRoute(origin, destination, service, display) {
+function displayRoute(origin, destination, service, display, waypoints) {
   service.route({
     origin: origin,
     destination: destination,
-//    waypoints: [{location: 'Cocklebiddy, WA'}, {location: 'Broken Hill, NSW'}],
+    waypoints: waypoints,
     travelMode: google.maps.TravelMode.DRIVING,
     avoidTolls: true
   }, function(response, status) {
@@ -181,6 +181,54 @@ function computeTotalDistance(result) {
   }
   total = total / 1000;
   document.getElementById('total').innerHTML = total + ' km';
+}
+        
+function deleteMarkers() {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
+  }
+  markers = [];
+}
+        
+function saveRide(directionsDisplay, waypoints) {
+  var legs = directionsDisplay.directions.routes[0].legs;
+  var data = {};
+  data.start = {'lat': legs[0].start_location.lat(), 'lng':legs[0].start_location.lng()}
+  data.end = {'lat': legs[legs.length-1].end_location.lat(), 'lng':legs[legs.length-1].end_location.lng()}
+  
+  var totalWP = [];
+  for (var i=0; i < legs.length; i++) {
+
+      // Don't store the origin
+      if (i != 0) {
+      totalWP.push([legs[i].start_location.lat(), legs[i].start_location.lng()]);
+      }
+      
+      var legWP = legs[i].via_waypoints;
+      for (var j=0; j < legWP.length; j++) {
+          totalWP.push([legWP[j].lat(), legWP[j].lng()]);
+      }
+      
+      // Don't store the destintation
+      if ( i != legs.length - 1) {
+          totalWP.push([legs[i].end_location.lat(), legs[i].end_location.lng()]);
+      }
+  }
+
+  data.waypoints = totalWP;
+  var str = JSON.stringify(data)
+  
+  document.getElementById("saved").innerHTML = str;
+}
+        
+function loadRide(directionsService, directionsDisplay, os) {
+//    var wp = [];
+    var adjustedWaypoints = [];
+    for(var i=0;i<os.waypoints.length;i++) {
+        adjustedWaypoints[i] = {'location': new google.maps.LatLng(os.waypoints[i][0], os.waypoints[i][1]),'stopover':false }
+    }
+    
+    displayRoute(os.start, os.end, directionsService, directionsDisplay, adjustedWaypoints);
 }
 
     </script>
