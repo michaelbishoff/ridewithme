@@ -22,9 +22,6 @@ block content
 
 block extra_scripts
   script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
-  script(src="/javascripts/GSVPano.min.js")
-  script(src="/javascripts/three.min.js")
-  script(src="/javascripts/hyperlapse.min.js")
 
   script(src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenLite.min.js")  
@@ -95,8 +92,8 @@ block extra_scripts
 
           var routeSequence = StreetviewSequence('#hyperlapse', {
             route: directionsDisplay.directions,
-            duration: 5000,
-            loop: true,
+            duration: 10000,
+            loop: false,
             width: 593,
             height: 867,
             key: 'AIzaSyDBX-55LuU2jwLxHuqqK5PN4o--O-E4SmU',
