@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var ffmpeg = require('fluent-ffmpeg');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -24,6 +25,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+
+app.get('/stitch/:name', function(req, res, next) {
+  var video = ffmpeg(path.join(__dirname, 'public', 'tmp', 'frame-%d.png'))
+    .fps(10)
+    .mergeToFile(path.join(__dirname, 'public', 'videos', req.params('name') + '.mp4'))
+    .on('end', function() {
+      console.log('file has been converted succesfully');
+      res.redirect('/');
+    })
+    .on('error', function(err) {
+      console.log('an error happened: ' + err.message);
+    })
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
