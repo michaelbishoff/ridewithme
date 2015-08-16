@@ -70,6 +70,12 @@ p {
   }
 }
 
+@media (max-width: 767px) {
+  #hyperlapse canvas {
+    width: 100% !important;
+  }
+}
+
 #createForm {
   padding: 20px 0;
 }
