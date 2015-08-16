@@ -25,7 +25,7 @@ block content
                   p#from
                 hr
                 h2 Ride Now
-                button.btn.btn-primary.btn-lg Get Directions
+                button.btn.btn-primary.btn-lg(id="getDirections" onclick="getDirections()") Get Directions
                 hr
                 h2 Who Else Is Riding
                 p The next ride takes place on 8/17/2015
@@ -49,6 +49,7 @@ block content
     script(src="/javascripts/StreetviewSequence.js")
     script.
         var distance;
+        var parsedRide;
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
               zoom: 10,
@@ -64,7 +65,6 @@ block content
             //3SxhEeyL0n
             var RidePath = Parse.Object.extend("RidePath");
             var query = new Parse.Query(RidePath);
-            var parsedRide;
             query.get('#{rideId}', {
               success: function(ride) {
                 // The object was retrieved successfully.
@@ -141,7 +141,24 @@ block content
 
             return {"start": ride.start, "end": ride.end, "waypoints": parsedWaypoints};
         }
-
+        
+        function getDirections() {
+            var directions = "https://www.google.com/maps?saddr=" + parsedRide["start"]['lat'] + "," + parsedRide["start"]['lng'] + "&daddr=";
+            
+            if (parsedRide['waypoints'].length != 0) {
+                for (var i=0; i < parsedRide['waypoints'].length; i++) {
+                    directions += parsedRide['waypoints'][i]['location'].lat() + "," + parsedRide['waypoints'][i]['location'].lng() + "+to:";
+                }
+            }
+            directions += parsedRide["end"]['lat'] + "," + parsedRide["end"]['lng'];
+          
+          $.ajax({
+            url: "/twilio",
+            data: {'message': directions},
+            success: console.log(directions),
+            dataType: ""
+          });
+        }
 
 
     script(src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap")
