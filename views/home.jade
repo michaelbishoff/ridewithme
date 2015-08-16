@@ -23,11 +23,9 @@ block content
                 .location
                   p #[strong To:] #{ride.get("to")}
                   p #[strong From:] #{ride.get("from")}
-                hr
-                p #[strong Who else is riding?]
-                p
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
+                if ride.get("riders")
+                  hr
+                  p #[strong Who else is riding?]
+                  p
+                    each rider in ride.get("riders")
+                      img.img-responsive.img-circle(src="#{rider}", style="max-width:50px;margin-right:5px;display:inline-block;")

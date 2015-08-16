@@ -27,14 +27,11 @@ block content
                 h2 Ride Now
                 button.btn.btn-primary.btn-lg Get Directions
                 hr
-                h2 Who Else Is Riding
-                p The next ride takes place on 8/17/2015
-                p
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
-                  img.img-responsive.img-circle(src="https://pbs.twimg.com/profile_images/606056698420158464/7U4FvinA.png", style="max-width:50px;margin-right:5px;display:inline-block;")
+                h2 Who Else Is Riding  
+                p The next ride takes place on #[span#rideDate]
+                hr
+                p #[strong Who else is riding?]
+                p#riders
                 p: button.btn.btn-primary.btn-lg Join Riders
       #preview(style="text-align:center;")
         h1(style="color:white") Preview
@@ -88,6 +85,15 @@ block content
                       $('#difficulty').addClass('label-danger');
                       break;
                   }
+                  document.getElementById("rideDate").innerHTML = ride.get("rideDate");
+
+                  var ridersHtml = "";
+                  var riders = ride.get("riders");
+                  riders.forEach(function(rider) {
+                    //img.img-responsive.img-circle(src="#{rider}", style="max-width:50px;margin-right:5px;display:inline-block;")
+                    ridersHtml += '<img src="' + rider + '" class="img-circle img-responsive" style="max-width:50px;margin-right:5px;display:inline-block;">'
+                  });
+                  document.getElementById("riders").innerHTML = ridersHtml;
               },
               error: function(object, error) {
                 // The object was not retrieved successfully.

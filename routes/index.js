@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
     var query = new Parse.Query(Ride);
     query.descending('createdAt');
     query.find().then(function(results) {
-        console.log(results);
+        console.log(JSON.stringify(results, null, 2));
         res.render('home', {rides: results});
     });
 });
