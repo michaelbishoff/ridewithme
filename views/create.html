@@ -56,13 +56,8 @@
     </style>
   </head>
   <body>
-    <div id="map" style="float:left; width:63%"></div>
-    <div style="float:right; width:37%">
-        Start:<div id="startLatLng"></div>
-        End:<div id="endLatLng"></div>
-        Saved:<div id="saved"></div>
-        Loaded:<div id="loaded"></div>
-    </div>
+    <div id="map"></div>
+    <div id="saved" hidden></div>
     <div id="bottomBox" style="position: absolute; background-color: yellow;">
         <button id="saveButton" type="button">Save Ride</button>
         <button id="loadButton" type="button">Load Ride</button>
@@ -71,8 +66,6 @@
     <script>
 var startLocation;
 var endLocation;
-var geoStart;
-var geoEnd;
 
 var markers = [];
 
@@ -103,11 +96,10 @@ function initMap() {
   google.maps.event.addListener(map, "rightclick", function(event) {
     var lat = event.latLng.lat();
     var lng = event.latLng.lng();
-    // populate yor box/field with lat, lng
-    var start = document.getElementById("startLatLng");
+    
     if (startLocation == null) {
         startLocation = new google.maps.LatLng(lat, lng);
-        start.innerHTML = lat + ", " + lng;
+        console.log("Start: " +lat + ", " + lng);
         
         geocoder.geocode({'location': startLocation}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
@@ -129,7 +121,7 @@ function initMap() {
     } else if (endLocation == null) {
         deleteMarkers();
         endLocation = new google.maps.LatLng(lat, lng);
-        document.getElementById("endLatLng").innerHTML = lat + ", " + lng;
+        console.log("End: " + lat + ", " + lng);
         
         displayRoute(startLocation, endLocation, directionsService, directionsDisplay, waypoints);
         
