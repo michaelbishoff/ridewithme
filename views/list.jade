@@ -6,6 +6,8 @@ block content
 
 block extra_scripts
   script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
+  script(src="/public/javascripts/key.js")
+
   script.
     function getLoc(next, andThen) {
       var geoSuccess = function(position) {
@@ -16,7 +18,7 @@ block extra_scripts
       // initial loc
       navigator.geolocation.getCurrentPosition(geoSuccess);
     }
-    
+
     function initialize() {
       // [map] global variable
       map = new google.maps.Map(document.getElementById('map'), {
@@ -25,7 +27,7 @@ block extra_scripts
       });
 
       panel = document.getElementById('panel');
- 
+
       // Register map listener for viewport change.
       google.maps.event.addListener(map, 'idle', function(ev){
         for (var i = 0; i < allDirectionRenderers.length; i++) {
@@ -34,45 +36,54 @@ block extra_scripts
         }
 
         allDirectionRenderers = [];
-        var bounds = map.getBounds(); // LatLng 
-        loadFakeData(bounds);
+        var bounds = map.getBounds(); // LatLng
+        loadData(bounds);
       });
     }
-    
-    function loadFakeData(bounds) {
-      var startAndEnd = [
-        ["Fremont, CA", "Oakland, CA"],
-        ["San Francisco, CA", "Sausalito, CA"],
-        ['San Bruno, CA', 'San Carlos, CA'],
-        ['San Jose, CA', 'Santa Clara, CA'],
-        ['Palo Alto, CA', 'Mountain View, CA']
-      ];
+
+    function parseRide(ride) {
+        var parsedWaypoints = [];
+        for(var i=0; i < ride["waypoints"].length; i++) {
+            parsedWaypoints[i] = {'location': new google.maps.LatLng(ride["waypoints"][i][0], ride["waypoints"][i][1]),'stopover':false };
+        }
+
+        return {"start": ride.start, "end": ride.end, "waypoints": parsedWaypoints};
+    }
+
+    function loadData(bounds) {
+      var Ride = Parse.Object.extend("RidePath");
+      var query = new Parse.Query(Ride);
+      var parsedRides = [];
+//      query.limit(5);
+//      query.descending("createdAt");
+      query.find({
+        success: function(rides) {
+            for (var i = 0; i < rides.length; i++) {
+                parsedRides[i] = parseRide(JSON.parse(rides[1].get("ride")));
+            }
+        },
+        error: function(object, error) {
+            alert("Faild to load rides");
+        }
+      });
 
       allDirectionRenderers = [];
-
-      function onRoute (response, status) {
-        if (status === google.maps.DirectionsStatus.OK) {
-          console.log('on route' + response);
-          directionsDisplay.setDirections(response);
-        } else {
-          window.alert('Directions request failed due to ' + status);
-        }
-      }
 
       var allDisplays = new Map();
 
       var service = new google.maps.DirectionsService();
 
-      for (var i = 0; i < startAndEnd.length; i++) {
-        var currPair = startAndEnd[i];
+      for (var i = 0; i < parsedRides.length; i++) {
+        var currRide = parsedRides[i];
         var request = {
-          origin: currPair[0],
-          destination: currPair[1],
+          origin: currRide["start"],
+          destination: currRide["end"],
+          waypoints: currRide["waypoints"],
           travelMode: google.maps.TravelMode.DRIVING
         };
 
         var renderOptions = {
-          preserveViewport: true,     
+          preserveViewport: true,
           suppressMarkers: true
         };   
 
@@ -107,4 +118,4 @@ block extra_scripts
       }
     }
 
-    google.maps.event.addDomListener(window, 'load', getLoc(initialize, loadFakeData));
+    google.maps.event.addDomListener(window, 'load', getLoc(initialize, loadData));
