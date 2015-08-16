@@ -4,6 +4,10 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <title>Draggable directions</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.5.0.min.js"></script>
+    <script type="text/javascript" src="/public/javascripts/key.js"></script>
+      
     <style>
       html, body {
         height: 100%;
@@ -63,7 +67,9 @@
         <button id="loadButton" type="button">Load Ride</button>
         <p>Total Distance: <span id="total"></span></p>
     </div>
+      
     <script>
+var Ride = Parse.Object.extend("RidePath");
 var startLocation;
 var endLocation;
 
@@ -138,14 +144,26 @@ function initMap() {
   });
     
   document.getElementById("loadButton").addEventListener("click", function() {
-      var os = JSON.parse(document.getElementById("saved").innerHTML);
-      directionsDisplay.setMap(null);
-      directionsDisplay = new google.maps.DirectionsRenderer({
-        draggable: true,
-        map: map,
-    //    panel: document.getElementById('directionsPanel')
+      var ride;// = JSON.parse(document.getElementById("saved").innerHTML);
+      
+      var query = new Parse.Query(Ride);
+      query.limit(1);
+      query.descending("createdAt");
+      query.find({
+        success: function(rides) {
+            ride = JSON.parse(rides[0].get("ride"));
+            
+            directionsDisplay.setMap(null);
+            directionsDisplay = new google.maps.DirectionsRenderer({
+                draggable: true,
+                map: map,
+            });
+            loadRide(directionsService, directionsDisplay, ride);
+        },
+        error: function(object, error) {
+            alert("Faild to load ride");
+        }
       });
-      loadRide(directionsService, directionsDisplay, os);
   });
 }
 
@@ -210,17 +228,26 @@ function saveRide(directionsDisplay, waypoints) {
   data.waypoints = totalWP;
   var str = JSON.stringify(data)
   
-  document.getElementById("saved").innerHTML = str;
+//  document.getElementById("saved").innerHTML = str;
+    
+  var ride = new Ride();
+  ride.save({"ride": str}, {
+  success: function(object) {
+      alert("saved");
+  },
+  error: function(model, error) {
+      alert("didnt' save");
+  }
+});
 }
         
-function loadRide(directionsService, directionsDisplay, os) {
-//    var wp = [];
-    var adjustedWaypoints = [];
-    for(var i=0;i<os.waypoints.length;i++) {
-        adjustedWaypoints[i] = {'location': new google.maps.LatLng(os.waypoints[i][0], os.waypoints[i][1]),'stopover':false }
+function loadRide(directionsService, directionsDisplay, ride) {
+    var parsedWaypoints = [];
+    for(var i=0; i < ride["waypoints"].length; i++) {
+        parsedWaypoints[i] = {'location': new google.maps.LatLng(ride["waypoints"][i][0], ride["waypoints"][i][1]),'stopover':false }
     }
     
-    displayRoute(os.start, os.end, directionsService, directionsDisplay, adjustedWaypoints);
+    displayRoute(ride.start, ride.end, directionsService, directionsDisplay, parsedWaypoints);
 }
 
     </script>
