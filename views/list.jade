@@ -2,36 +2,109 @@ extends layout
 
 block content
   #map
+  #panel  
 
 block extra_scripts
   script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
   script.
-    function getLoc(next) {
+    function getLoc(next, andThen) {
       var geoSuccess = function(position) {
         initialLoc = position;
         next();
+        andThen();
       }
-
       // initial loc
       navigator.geolocation.getCurrentPosition(geoSuccess);
     }
     
     function initialize() {
-      var from_autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('from'), 
-        { types: ['(cities)'], }
-      );
-
-      var to_autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('to'), 
-        { types: ['(cities)'], }
-      );
-
-      // map
+      // [map] global variable
       map = new google.maps.Map(document.getElementById('map'), {
         zoom: 10,
         center: new google.maps.LatLng(initialLoc.coords.latitude, initialLoc.coords.longitude),
       });
+
+      panel = document.getElementById('panel');
+ 
+      // Register map listener for viewport change.
+      google.maps.event.addListener(map, 'idle', function(ev){
+        for (var i = 0; i < allDirectionRenderers.length; i++) {
+          var renderer = allDirectionRenderers[i];
+          renderer.setMap(null);
+        }
+
+        allDirectionRenderers = [];
+        var bounds = map.getBounds(); // LatLng 
+        loadFakeData(bounds);
+      });
+    }
+    
+    function loadFakeData(bounds) {
+      var startAndEnd = [
+        ["Fremont, CA", "Oakland, CA"],
+        ["San Francisco, CA", "Sausalito, CA"],
+        ['San Bruno, CA', 'San Carlos, CA'],
+        ['San Jose, CA', 'Santa Clara, CA'],
+        ['Palo Alto, CA', 'Mountain View, CA']
+      ];
+
+      allDirectionRenderers = [];
+
+      function onRoute (response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
+          console.log('on route' + response);
+          directionsDisplay.setDirections(response);
+        } else {
+          window.alert('Directions request failed due to ' + status);
+        }
+      }
+
+      var allDisplays = new Map();
+
+      var service = new google.maps.DirectionsService();
+
+      for (var i = 0; i < startAndEnd.length; i++) {
+        var currPair = startAndEnd[i];
+        var request = {
+          origin: currPair[0],
+          destination: currPair[1],
+          travelMode: google.maps.TravelMode.DRIVING
+        };
+
+        var renderOptions = {
+          preserveViewport: true,     
+          suppressMarkers: true
+        };   
+
+        service.route(request, function(response, status) {
+          console.log('calculating ' + i);
+          if (status == google.maps.DirectionsStatus.OK) {
+            var pathAsLatLngs = response.routes[0].overview_path;
+            console.log(pathAsLatLngs);
+            var index = 0;
+            var latlng = pathAsLatLngs[index];
+            var showThis = true;
+
+            if (bounds) {
+              while (index < pathAsLatLngs.length && showThis) {
+                if (bounds.contains(latlng) == false) {
+                  showThis = false;
+                }
+                index++;
+                latLng = pathAsLatLngs[index];
+              }
+            }
+
+            if (showThis) {
+              console.log('showing ');
+              var directionsRenderer = new google.maps.DirectionsRenderer(renderOptions);
+              directionsRenderer.setMap(map);
+              directionsRenderer.setDirections(response);
+              allDirectionRenderers.push(directionsRenderer);
+            } 
+          }
+        });
+      }
     }
 
-    google.maps.event.addDomListener(window, 'load', getLoc(initialize));
+    google.maps.event.addDomListener(window, 'load', getLoc(initialize, loadFakeData));
