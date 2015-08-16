@@ -13,9 +13,10 @@ html
             a.navbar-brand(href="/") Ride With Me
           .collapse.navbar-collapse#navbar-collapse
             ul.nav.navbar-nav.navbar-left
-                li: a(href="/") Hyperlapse
-                li: a(href="/list") View
                 li: a(href="/create") Create
+                li: a(href="/list") See All
+            ul.nav.navbar-nav.navbar-right
+                li: a(href="#") Login
             block additional_nav_items
     block content
 

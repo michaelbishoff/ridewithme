@@ -1,15 +1,54 @@
-html, body, #map {
+html, body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
+  background-color: #303030 !important;
+}
+
+p {
+  font-size: 1.2em;
 }
 
 .navbar {
-	margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .navbar-form input, button {
   margin: 0 5px;
+}
+
+.ride-listing-anchor, .ride-listing-anchor:hover {
+  text-decoration: none;
+  color: #333;
+}
+
+.ride-listing-anchor:hover .thumbnail {
+  border: 3px solid #333;
+}
+
+.ride-listing-header p {
+  font-size: 1.4em;
+}
+
+.ride-listing {
+  margin-top: 20px;
+  padding: 20px !important;
+}
+
+.ride-listing h2 {
+  margin: 0; padding: 0;
+  margin-bottom: 5px;
+}
+
+.ride-listing .location p {
+  margin: 0; padding: 0;
+  margin-bottom: 2px;
+}
+
+.vcenter {
+  display: inline-block;
+  vertical-align: middle;
+  float: none !important;
 }
 
 #hypermap, #hyperlapse {
@@ -19,4 +58,8 @@ html, body, #map {
 
 #hypercontainer {
 	padding-bottom: 50px;
+}
+
+.container-narrow {
+  max-width: 650px;
 }

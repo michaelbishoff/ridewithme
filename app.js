@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var ffmpeg = require('fluent-ffmpeg');
+var mkdirp = require('mkdirp');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -26,13 +27,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
-app.get('/stitch/:name', function(req, res, next) {
-  var video = ffmpeg(path.join(__dirname, 'public', 'tmp', 'frame-%d.png'))
+app.post('/createframes/:name', function(req, res, next) {
+  mkdirp(path.join(__dirname, '..', 'public', 'frames', req.body.unique_name), function(err) {
+    req.body.frameData.forEach(function(frame) {
+      data.file = data.file.split(',')[1];
+      var buffer = new Buffer(data.file, 'base64');
+      fs.writeFileSync(
+        __dirname + '/../public/' + '/frames/' + req.body.unique_name + '/frame-' + data.frame + '.png', 
+        buffer.toString('binary'), 'binary');
+    });
+  });
+});
+
+app.get('/createvideo/:name', function(req, res, next) {
+  var video = ffmpeg(path.join(__dirname, 'public', 'frames', req.params.name, 'frame-%d.png'))
     .fps(10)
-    .mergeToFile(path.join(__dirname, 'public', 'videos', req.params('name') + '.mp4'))
+    .mergeToFile(path.join(__dirname, 'public', 'videos', req.params.name + '.mp4'))
     .on('end', function() {
       console.log('file has been converted succesfully');
-      res.redirect('/');
+      res.json({"message": "file successfully converted"});
     })
     .on('error', function(err) {
       console.log('an error happened: ' + err.message);
